@@ -1,0 +1,50 @@
+{
+  "name": "web-rtc",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/main.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack --config webpack.config.js",
+    "start": "npm run build && ts-node serve.ts",
+    "lint-staged": "lint-staged",
+    "tslint-check": "tslint-config-prettier-check ./tslint.json"
+  },
+  "lint-staged": {
+    "src/*.ts": [
+      "prettier --write --trailing-comma es5 --single-quote true",
+      "git add"
+    ]
+  },
+  "author": {
+    "name": "hax0r",
+    "email": "a@hax0r.info",
+    "url": "https://www.github.com/webhacking"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "@types/http-server": "^0.10.0",
+    "@types/socket.io": "^1.4.33",
+    "@types/webrtc": "0.0.23",
+    "crypo": "^0.1.4",
+    "http": "0.0.0",
+    "http-server": "^0.11.1",
+    "path": "^0.12.7",
+    "rxjs": "^6.2.0",
+    "socket.io": "^2.1.1",
+    "socket.io-client": "^2.1.1",
+    "ts-node": "^6.0.5",
+    "webpack": "^4.10.1",
+    "webpack-cli": "^2.1.4",
+    "webrtc-adapter": "^6.2.1"
+  },
+  "devDependencies": {
+    "prettier": "^1.13.3",
+    "ts-loader": "^4.3.0",
+    "tslint": "^5.10.0",
+    "tslint-config-prettier": "^1.13.0",
+    "husky": "^0.14.3",
+    "typescript": "^2.9.1",
+    "lint-staged": "^7.1.2"
+  }
+}

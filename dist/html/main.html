@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en" class="w-100 h-100">
+<head>
+    <meta charset="UTF-8">
+    <title>
+        WebRTC Playground by hax0r
+    </title>
+    <link rel="shortcut icon" href="data:image/x-icon;" type="image/x-icon" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous" />
+    <style>
+        button {
+            -webkit-appearance: button;
+            -moz-appearance: button;
+            appearance: button;
+            text-decoration: none;
+        }
+        #app h2 {
+            background-color: #333;
+            color: #fff;
+            padding: 10px;
+        }
+        #app video {
+            width: calc(50% - 13px);
+        }
+        #app > section {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        #app .video-areas {
+            position: relative;
+        }
+        #app .video-areas .video-frame {
+            width: calc(50% - 13px);
+            float: left;
+            border: 1px solid #eee;
+            margin: 0px 6.5px 0px 6.5px;
+            height: 410px;
+        }
+
+        #app .video-areas .video-frame video {
+            overflow-y: hidden;
+            width: 100%;
+            max-height: 75%;
+            transition-property: all;
+            transition-duration: 800ms;
+            transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            z-index:98;
+        }
+        #app .video-areas .video-frame video.tunes {
+            max-height: 100%;
+            z-index: 100;
+        }
+        #app .video-areas .video-frame .disable-screen {
+            z-index: 99;
+            background-color: #000;
+        }
+        #app .video-areas .video-frame[data-video-status="disable"] .disable-screen {
+            background-color: #000000ba;
+        }
+        #app .video-areas .video-frame .mute-audio-screen {
+            display: none;
+            z-index: 100;
+        }
+        #app .video-areas .video-frame .mute-audio-screen.enable {
+            display: block;
+        }
+        #app .video-areas .video-frame[data-video-status="enable"] .mute-audio-screen {
+            z-index: 101;
+        }
+        #app .video-areas .video-frame .mute-audio-screen > img {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+        #app .video-areas .video-frame[data-video-status="enable"] .mute-audio-screen > img {
+            right: 20px;
+            width: 34px;
+            top: 10px;
+            transform: none;
+            left: auto;
+        }
+        #app .video-areas .video-controller {
+            position: absolute;
+            top: 6px;
+            left: 20px;
+            transition: 300ms;
+        }
+        #app .video-areas .video-controller[data-use="true"] {
+            left: -110px;
+        }
+        #app .video-areas .video-controller .video-btns {
+            width: 100px;
+            overflow: hidden;
+            transition: 300ms;
+        }
+        #app .video-areas .video-controller .video-btns button {
+            float: left;
+            margin-bottom: 10px;
+            width: 100%;
+            color: #fff;
+            font-weight: bold;
+            border-radius: 12px;
+        }
+        #switch-voice-btn[data-switched="enable"],
+        #switch-video-btn[data-switched="enable"] {
+            background-color: #28a745;
+            border-color: #28a745;
+        }
+        #switch-voice-btn[data-switched="disable"],
+        #switch-video-btn[data-switched="disable"] {
+            background-color: #dc3545;
+            border-color: #dc3545;
+        }
+        #app .video-btn-area {
+            overflow: hidden;
+            margin-bottom: 10px;
+            margin-top: 10px;
+        }
+        #app .chat-area .chat-list {
+            height: 300px;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+        }
+        #app .chat-area .chat-list {
+            overflow-x: hidden;
+            overflow-y: scroll;
+            padding-top: 10px;
+            padding-bottom: 10px;
+        }
+        #app .chat-area .chat-list ul > li {
+            color: #333;
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+        #app .chat-area textarea {
+            margin-top: 10px;
+            min-height: 100px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body class="w-100 h-100">
+    <section id="app" class="w-100 h-100">
+       <section class="container">
+           <h2 class="text-center">
+               WebRTC Playground By Hax0r
+           </h2>
+           <section class="video-areas">
+               <div class="video-controller" data-use="false">
+                   <div class="video-btns">
+                       <button id="switch-video-btn" data-switched="enable">
+                           Video
+                       </button>
+                       <button id="switch-voice-btn" data-switched="enable">
+                           Voice
+                       </button>
+                   </div>
+               </div>
+               <div class="video-frame position-relative" data-video-status="disable">
+                   <div class="disable-screen position-absolute w-100 h-100">
+                   </div>
+                   <div class="mute-audio-screen position-absolute w-100 h-100">
+                       <img src="data:image/svg+xml;utf8;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/Pgo8IS0tIEdlbmVyYXRvcjogQWRvYmUgSWxsdXN0cmF0b3IgMTkuMC4wLCBTVkcgRXhwb3J0IFBsdWctSW4gLiBTVkcgVmVyc2lvbjogNi4wMCBCdWlsZCAwKSAgLS0+CjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgdmVyc2lvbj0iMS4xIiBpZD0iQ2FwYV8xIiB4PSIwcHgiIHk9IjBweCIgdmlld0JveD0iMCAwIDU0IDU0IiBzdHlsZT0iZW5hYmxlLWJhY2tncm91bmQ6bmV3IDAgMCA1NCA1NDsiIHhtbDpzcGFjZT0icHJlc2VydmUiIHdpZHRoPSI2NHB4IiBoZWlnaHQ9IjY0cHgiPgo8Zz4KCTxwYXRoIGQ9Ik00Ni40MTQsMjZsNy4yOTMtNy4yOTNjMC4zOTEtMC4zOTEsMC4zOTEtMS4wMjMsMC0xLjQxNHMtMS4wMjMtMC4zOTEtMS40MTQsMEw0NSwyNC41ODZsLTcuMjkzLTcuMjkzICAgYy0wLjM5MS0wLjM5MS0xLjAyMy0wLjM5MS0xLjQxNCwwcy0wLjM5MSwxLjAyMywwLDEuNDE0TDQzLjU4NiwyNmwtNy4yOTMsNy4yOTNjLTAuMzkxLDAuMzkxLTAuMzkxLDEuMDIzLDAsMS40MTQgICBDMzYuNDg4LDM0LjkwMiwzNi43NDQsMzUsMzcsMzVzMC41MTItMC4wOTgsMC43MDctMC4yOTNMNDUsMjcuNDE0bDcuMjkzLDcuMjkzQzUyLjQ4OCwzNC45MDIsNTIuNzQ0LDM1LDUzLDM1ICAgczAuNTEyLTAuMDk4LDAuNzA3LTAuMjkzYzAuMzkxLTAuMzkxLDAuMzkxLTEuMDIzLDAtMS40MTRMNDYuNDE0LDI2eiIgZmlsbD0iI0ZGRkZGRiIvPgoJPHBhdGggZD0iTTI4LjQwNCw0LjRjLTAuOTc1LTAuNTUyLTIuMTMxLTAuNTM0LTMuMDksMC4wNDRjLTAuMDQ2LDAuMDI3LTAuMDksMC4wNTktMC4xMywwLjA5M0wxMS42MzQsMTZIMWMtMC41NTMsMC0xLDAuNDQ3LTEsMXYxOSAgIGMwLDAuMjY2LDAuMTA1LDAuNTIsMC4yOTMsMC43MDdTMC43MzQsMzcsMSwzN2wxMC42MS0wLjAwNWwxMy41NDMsMTIuNDRjMC4wNSwwLjA0NiwwLjEwNCwwLjA4NiwwLjE2MSwwLjEyICAgYzAuNDkyLDAuMjk3LDEuMDM3LDAuNDQ2LDEuNTgyLDAuNDQ2YzAuNTE3LTAuMDAxLDEuMDMzLTAuMTM0LDEuNTA4LTAuNDAyQzI5LjQwMyw0OS4wMzUsMzAsNDguMDA1LDMwLDQ2Ljg0NFY3LjE1NiAgIEMzMCw1Ljk5NSwyOS40MDMsNC45NjUsMjguNDA0LDQuNHogTTI4LDQ2Ljg0NGMwLDAuNDMxLTAuMjE3LDAuODEtMC41NzksMS4wMTVjLTAuMTU1LDAuMDg3LTAuNTQ4LDAuMjU1LTEsMC4wMjZMMTMsMzUuNTU2VjMxICAgYzAtMC41NTMtMC40NDctMS0xLTFzLTEsMC40NDctMSwxdjMuOTk2TDIsMzVWMThoOXY0YzAsMC41NTMsMC40NDcsMSwxLDFzMS0wLjQ0NywxLTF2LTQuNTM2bDEzLjQwNS0xMS4zNCAgIGMwLjQ2LTAuMjQyLDAuODYtMC4wNywxLjAxNiwwLjAxOEMyNy43ODMsNi4zNDcsMjgsNi43MjUsMjgsNy4xNTZWNDYuODQ0eiIgZmlsbD0iI0ZGRkZGRiIvPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+Cjwvc3ZnPgo=" />
+                   </div>
+                   <video id="local" autoplay>
+                   </video>
+               </div>
+               <div class="video-frame position-relative" data-video-status="disable">
+                   <div class="disable-screen position-absolute w-100 h-100">
+                   </div>
+                   <div class="mute-audio-screen position-absolute w-100 h-100">
+                       <img src="data:image/svg+xml;utf8;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/Pgo8IS0tIEdlbmVyYXRvcjogQWRvYmUgSWxsdXN0cmF0b3IgMTkuMC4wLCBTVkcgRXhwb3J0IFBsdWctSW4gLiBTVkcgVmVyc2lvbjogNi4wMCBCdWlsZCAwKSAgLS0+CjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgdmVyc2lvbj0iMS4xIiBpZD0iQ2FwYV8xIiB4PSIwcHgiIHk9IjBweCIgdmlld0JveD0iMCAwIDU0IDU0IiBzdHlsZT0iZW5hYmxlLWJhY2tncm91bmQ6bmV3IDAgMCA1NCA1NDsiIHhtbDpzcGFjZT0icHJlc2VydmUiIHdpZHRoPSI2NHB4IiBoZWlnaHQ9IjY0cHgiPgo8Zz4KCTxwYXRoIGQ9Ik00Ni40MTQsMjZsNy4yOTMtNy4yOTNjMC4zOTEtMC4zOTEsMC4zOTEtMS4wMjMsMC0xLjQxNHMtMS4wMjMtMC4zOTEtMS40MTQsMEw0NSwyNC41ODZsLTcuMjkzLTcuMjkzICAgYy0wLjM5MS0wLjM5MS0xLjAyMy0wLjM5MS0xLjQxNCwwcy0wLjM5MSwxLjAyMywwLDEuNDE0TDQzLjU4NiwyNmwtNy4yOTMsNy4yOTNjLTAuMzkxLDAuMzkxLTAuMzkxLDEuMDIzLDAsMS40MTQgICBDMzYuNDg4LDM0LjkwMiwzNi43NDQsMzUsMzcsMzVzMC41MTItMC4wOTgsMC43MDctMC4yOTNMNDUsMjcuNDE0bDcuMjkzLDcuMjkzQzUyLjQ4OCwzNC45MDIsNTIuNzQ0LDM1LDUzLDM1ICAgczAuNTEyLTAuMDk4LDAuNzA3LTAuMjkzYzAuMzkxLTAuMzkxLDAuMzkxLTEuMDIzLDAtMS40MTRMNDYuNDE0LDI2eiIgZmlsbD0iI0ZGRkZGRiIvPgoJPHBhdGggZD0iTTI4LjQwNCw0LjRjLTAuOTc1LTAuNTUyLTIuMTMxLTAuNTM0LTMuMDksMC4wNDRjLTAuMDQ2LDAuMDI3LTAuMDksMC4wNTktMC4xMywwLjA5M0wxMS42MzQsMTZIMWMtMC41NTMsMC0xLDAuNDQ3LTEsMXYxOSAgIGMwLDAuMjY2LDAuMTA1LDAuNTIsMC4yOTMsMC43MDdTMC43MzQsMzcsMSwzN2wxMC42MS0wLjAwNWwxMy41NDMsMTIuNDRjMC4wNSwwLjA0NiwwLjEwNCwwLjA4NiwwLjE2MSwwLjEyICAgYzAuNDkyLDAuMjk3LDEuMDM3LDAuNDQ2LDEuNTgyLDAuNDQ2YzAuNTE3LTAuMDAxLDEuMDMzLTAuMTM0LDEuNTA4LTAuNDAyQzI5LjQwMyw0OS4wMzUsMzAsNDguMDA1LDMwLDQ2Ljg0NFY3LjE1NiAgIEMzMCw1Ljk5NSwyOS40MDMsNC45NjUsMjguNDA0LDQuNHogTTI4LDQ2Ljg0NGMwLDAuNDMxLTAuMjE3LDAuODEtMC41NzksMS4wMTVjLTAuMTU1LDAuMDg3LTAuNTQ4LDAuMjU1LTEsMC4wMjZMMTMsMzUuNTU2VjMxICAgYzAtMC41NTMtMC40NDctMS0xLTFzLTEsMC40NDctMSwxdjMuOTk2TDIsMzVWMThoOXY0YzAsMC41NTMsMC40NDcsMSwxLDFzMS0wLjQ0NywxLTF2LTQuNTM2bDEzLjQwNS0xMS4zNCAgIGMwLjQ2LTAuMjQyLDAuODYtMC4wNywxLjAxNiwwLjAxOEMyNy43ODMsNi4zNDcsMjgsNi43MjUsMjgsNy4xNTZWNDYuODQ0eiIgZmlsbD0iI0ZGRkZGRiIvPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+Cjwvc3ZnPgo=" />
+                   </div>
+                   <video id="remote" autoplay>
+                   </video>
+               </div>
+               <section class="video-btn-area controller w-100 float-left">
+                   <button class="btn float-left btn-success w-50" id="connect-me">
+                       Connect
+                   </button>
+                   <button class="btn float-left btn-danger w-50" id="disconnect-me" disabled>
+                        DisConnect
+                   </button>
+               </section>
+           </section>
+           <section class="chat-area">
+               <div class="chat-list w-100 float-left">
+                    <ul></ul>
+               </div>
+               <textarea class="w-100 float-left form-control" placeholder="메세지를 입력해주세요" disabled/></textarea>
+           </section>
+       </section>
+    </section>
+    <script type="text/javascript" src="/dist/main.js"></script>
+</body>
+</html>
